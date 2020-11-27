@@ -32,21 +32,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         button.setOnClickListener() {
+            val taskRealmResults = mRealm.where(Task::class.java)
+                .equalTo("category", content_category_text.text.toString()).findAll()
+                .sort("date", Sort.DESCENDING)
+            // 上記の結果を、TaskList としてセットする
+            mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+            // TaskのListView用のアダプタに渡す
+            listView1.adapter = mTaskAdapter
+            // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+            mTaskAdapter.notifyDataSetChanged()
+
+            button.text ="検索"
 
             // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
             if ( content_category_text.text.toString().isEmpty()) {
                 reloadListView()
-            } else{
-                val taskRealmResults = mRealm.where(Task::class.java)
-                    .equalTo("category", content_category_text.text.toString()).findAll()
-                    .sort("date", Sort.DESCENDING)
-                // 上記の結果を、TaskList としてセットする
-                mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
-                // TaskのListView用のアダプタに渡す
-                listView1.adapter = mTaskAdapter
-                // 表示を更新するために、アダプターにデータが変更されたことを知らせる
-                mTaskAdapter.notifyDataSetChanged()
+
+            } else if( mTaskAdapter.taskList.isEmpty()) {
+                button.text = "検索結果はありません。やり直してください"
+
             }
+
         }
 
         fab.setOnClickListener { view ->

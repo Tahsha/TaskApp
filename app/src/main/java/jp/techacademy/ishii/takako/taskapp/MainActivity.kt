@@ -34,13 +34,19 @@ class MainActivity : AppCompatActivity() {
         button.setOnClickListener() {
 
             // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-            val taskRealmResults = mRealm.where(Task::class.java).equalTo("category",content_category_text.text.toString()).findAll().sort("date", Sort.DESCENDING)
-            // 上記の結果を、TaskList としてセットする
-            mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
-            // TaskのListView用のアダプタに渡す
-            listView1.adapter = mTaskAdapter
-            // 表示を更新するために、アダプターにデータが変更されたことを知らせる
-            mTaskAdapter.notifyDataSetChanged()
+            if ( content_category_text.text.toString().isEmpty()) {
+                reloadListView()
+            } else{
+                val taskRealmResults = mRealm.where(Task::class.java)
+                    .equalTo("category", content_category_text.text.toString()).findAll()
+                    .sort("date", Sort.DESCENDING)
+                // 上記の結果を、TaskList としてセットする
+                mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+                // TaskのListView用のアダプタに渡す
+                listView1.adapter = mTaskAdapter
+                // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+                mTaskAdapter.notifyDataSetChanged()
+            }
         }
 
         fab.setOnClickListener { view ->

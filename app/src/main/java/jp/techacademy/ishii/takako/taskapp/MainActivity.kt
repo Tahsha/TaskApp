@@ -46,10 +46,20 @@ class MainActivity : AppCompatActivity() {
 
             // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
             if ( content_category_text.text.toString().isEmpty()) {
-                reloadListView()
+                val taskRealmResults = mRealm.where(Task::class.java)
+                    .isEmpty("category").findAll()
+                    .sort("date", Sort.DESCENDING)
+                // 上記の結果を、TaskList としてセットする
+                mTaskAdapter.taskList = mRealm.copyFromRealm(taskRealmResults)
+                // TaskのListView用のアダプタに渡す
+                listView1.adapter = mTaskAdapter
+                // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+                mTaskAdapter.notifyDataSetChanged()
+
 
             } else if( mTaskAdapter.taskList.isEmpty()) {
                 button.text = "検索結果はありません。やり直してください"
+
 
             }
 
@@ -89,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
             builder.setPositiveButton("OK") { _, _ ->
                 val results = mRealm.where(Task::class.java).equalTo("id", task.id).findAll()
-
+                button.text ="検索"
                 mRealm.beginTransaction()
                 results.deleteAllFromRealm()
                 mRealm.commitTransaction()
